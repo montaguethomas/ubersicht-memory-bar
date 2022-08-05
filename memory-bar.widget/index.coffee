@@ -1,6 +1,9 @@
+# name: Memory Bar
+# source: https://github.com/montaguethomas/ubersicht-memory-bar
+
 command: "memory_pressure && sysctl -n hw.memsize"
 
-refreshFrequency: 2000
+refreshFrequency: 5000
 
 style: """
   // Change bar height
@@ -10,7 +13,7 @@ style: """
   widget-align = left
 
   // Position this where you want
-  top 10px
+  top 110px
   left 10px
 
   // Statistics text settings
