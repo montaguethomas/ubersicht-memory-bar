@@ -133,7 +133,7 @@ update: (output, domEl) ->
     $(domEl).find(".#{sel}").text formatBytes(usedBytes)
     $(domEl).find(".bar-#{sel}").css "width", percent
 
-  lines = output.split "\n"
+  lines = output.split("\n")
 
   freePages = lines[3].split(": ")[1]
   inactivePages = lines[13].split(": ")[1]
