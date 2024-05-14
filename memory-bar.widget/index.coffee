@@ -1,7 +1,7 @@
 # name: Memory Bar
 # source: https://github.com/montaguethomas/ubersicht-memory-bar
 
-command: "memory_pressure && sysctl -n hw.memsize"
+command: "memory_pressure && sysctl hw.memsize hw.pagesize"
 
 refreshFrequency: 5000
 
@@ -120,21 +120,17 @@ render: -> """
 
 update: (output, domEl) ->
 
-  usage = (pages) ->
-    mb = (pages * 4096) / 1024 / 1024
-    usageFormat mb
-
-  usageFormat = (mb) ->
+  formatBytes = (bytes) ->
+    mb = bytes / 1024 / 1024
     if mb > 1024
       gb = mb / 1024
       "#{parseFloat(gb.toFixed(2))}GB"
     else
       "#{parseFloat(mb.toFixed())}MB"
 
-  updateStat = (sel, usedPages, totalBytes) ->
-    usedBytes = usedPages * 4096
+  updateStat = (sel, usedBytes, totalBytes) ->
     percent = (usedBytes / totalBytes * 100).toFixed(1) + "%"
-    $(domEl).find(".#{sel}").text usage(usedPages)
+    $(domEl).find(".#{sel}").text formatBytes(usedBytes)
     $(domEl).find(".bar-#{sel}").css "width", percent
 
   lines = output.split "\n"
@@ -144,10 +140,11 @@ update: (output, domEl) ->
   activePages = lines[12].split(": ")[1]
   wiredPages = lines[16].split(": ")[1]
 
-  totalBytes = lines[28]
-  $(domEl).find(".total").text usageFormat(totalBytes / 1024 / 1024)
+  totalBytes = lines[28].split(": ")[1]
+  pageSize = lines[29].split(": ")[1]
+  $(domEl).find(".total").text formatBytes(totalBytes)
 
-  updateStat 'free', freePages, totalBytes
-  updateStat 'active', activePages, totalBytes
-  updateStat 'inactive', inactivePages, totalBytes
-  updateStat 'wired', wiredPages, totalBytes
+  updateStat 'free', (freePages * pageSize), totalBytes
+  updateStat 'active', (activePages * pageSize), totalBytes
+  updateStat 'inactive', (inactivePages * pageSize), totalBytes
+  updateStat 'wired', (wiredPages * pageSize), totalBytes
